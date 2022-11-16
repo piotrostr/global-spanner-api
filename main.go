@@ -18,8 +18,11 @@ func SetupRouter(client *Client) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 
 	r.GET("/", func(c *gin.Context) {
+		if err := client.CheckHealth(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
 		c.JSON(http.StatusOK, gin.H{
-			"status": "healthy",
 			"config": client.cfg,
 		})
 	})
@@ -27,13 +30,10 @@ func SetupRouter(client *Client) *gin.Engine {
 	r.POST("/add-names", func(c *gin.Context) {
 		err := client.AddNames()
 		if err == nil {
-			c.JSON(http.StatusCreated, gin.H{
-				"status": "ok",
-			})
+			c.JSON(http.StatusCreated, nil)
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "error",
-				"error":  err,
+				"error": err,
 			})
 		}
 	})
@@ -44,8 +44,7 @@ func SetupRouter(client *Client) *gin.Engine {
 			c.JSON(http.StatusOK, names)
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"status": "error",
-				"error":  err,
+				"error": err,
 			})
 		}
 	})

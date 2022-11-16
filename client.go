@@ -26,7 +26,7 @@ type Name struct {
 
 type Client struct {
 	ctx        context.Context
-	cfg        Config
+	cfg        *Config
 	spannerURL string
 	admin      *database.DatabaseAdminClient
 	client     *spanner.Client
@@ -34,6 +34,7 @@ type Client struct {
 
 func (c *Client) Init(ctx context.Context, cfg *Config) error {
 	c.ctx = ctx
+	c.cfg = cfg
 	c.spannerURL = fmt.Sprintf(
 		"projects/%s/instances/%s/databases/%s",
 		c.cfg.Project,
@@ -58,6 +59,13 @@ func (c *Client) Init(ctx context.Context, cfg *Config) error {
 func (c *Client) Teardown() {
 	c.client.Close()
 	c.admin.Close()
+}
+
+func (c *Client) CheckHealth() error {
+	_, err := c.client.ReadWriteTransaction(c.ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
+		return nil
+	})
+	return err
 }
 
 func (c *Client) AddNames() error {

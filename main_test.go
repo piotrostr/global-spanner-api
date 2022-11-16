@@ -17,7 +17,12 @@ func TestHealthCheckWorks(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/", nil)
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		t.Errorf(
+			"Expected status code %d, got %d: %s",
+			http.StatusCreated,
+			w.Code,
+			w.Body.String(),
+		)
 	}
 }
 
@@ -32,7 +37,12 @@ func TestAddNamesWorks(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/add-names", nil)
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusCreated {
-		t.Errorf("Expected status code %d, got %d", http.StatusCreated, w.Code)
+		t.Errorf(
+			"Expected status code %d, got %d: %s",
+			http.StatusCreated,
+			w.Code,
+			w.Body.String(),
+		)
 	}
 }
 
@@ -47,6 +57,11 @@ func TestGetNamesWorks(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/get-names", nil)
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		t.Errorf(
+			"Expected status code %d, got %d: %s",
+			http.StatusCreated,
+			w.Code,
+			w.Body.String(),
+		)
 	}
 }
