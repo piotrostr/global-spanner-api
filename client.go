@@ -55,10 +55,9 @@ func (c *Client) Init(ctx context.Context, cfg *Config) error {
 	return nil
 }
 
-func (c *Client) Teardown() error {
+func (c *Client) Teardown() {
 	c.client.Close()
-	err := c.admin.Close()
-	return err
+	c.admin.Close()
 }
 
 func (c *Client) AddNames() error {
