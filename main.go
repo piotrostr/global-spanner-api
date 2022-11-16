@@ -2,14 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
-
-const ProjectName = "global_spanner_api"
 
 var ctx = context.Background()
 
@@ -56,10 +53,10 @@ func SetupClient() (*Client, error) {
 	client := &Client{}
 
 	err := client.Init(ctx, &Config{
-		Instance: fmt.Sprintf("%s_instance", ProjectName),
+		Instance: "instance",
 		Project:  "piotrostr-resources",
-		Database: fmt.Sprintf("%s_db", ProjectName),
-		Table:    fmt.Sprintf("%s_table", ProjectName),
+		Database: "db",
+		Table:    "table",
 	})
 	if err != nil {
 		log.Fatal(err)
