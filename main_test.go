@@ -30,6 +30,11 @@ func TestMain(m *testing.M) {
 	}
 	router = SetupRouter(client)
 
+	err = client.CreateTable()
+	if err != nil {
+		log.Fatalf("Error creating table: %v", err)
+	}
+
 	code := m.Run()
 
 	client.Teardown()
@@ -76,4 +81,5 @@ func TestGetNamesWorks(t *testing.T) {
 			w.Body.String(),
 		)
 	}
+	log.Println(w.Body.String())
 }

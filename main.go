@@ -48,6 +48,7 @@ func SetupRouter(client *Client) *gin.Engine {
 			})
 		}
 	})
+
 	return r
 }
 
@@ -55,10 +56,10 @@ func SetupClient() (*Client, error) {
 	client := &Client{}
 
 	err := client.Init(ctx, &Config{
-		Instance: fmt.Sprintf("%s-instance", ProjectName),
+		Instance: fmt.Sprintf("%s_instance", ProjectName),
 		Project:  "piotrostr-resources",
-		Database: fmt.Sprintf("%s-db", ProjectName),
-		Table:    fmt.Sprintf("%s-table", ProjectName),
+		Database: fmt.Sprintf("%s_db", ProjectName),
+		Table:    fmt.Sprintf("%s_table", ProjectName),
 	})
 	if err != nil {
 		log.Fatal(err)

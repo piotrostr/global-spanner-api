@@ -20,8 +20,8 @@ type Config struct {
 }
 
 type Name struct {
-	Id        uuid.UUID `spanner:"id" json:"id"`
-	FirstName string    `spanner:"first_name" json:"first_name"`
+	Id        string `spanner:"id" json:"id"`
+	FirstName string `spanner:"first_name" json:"first_name"`
 }
 
 type Client struct {
@@ -73,17 +73,17 @@ func (c *Client) AddNames() error {
 		spanner.Insert(
 			c.cfg.Table,
 			[]string{"id", "first_name"},
-			[]interface{}{uuid.New(), "Alice"},
+			[]interface{}{uuid.New().String(), "Alice"},
 		),
 		spanner.Insert(
 			c.cfg.Table,
 			[]string{"id", "first_name"},
-			[]interface{}{uuid.New(), "Bob"},
+			[]interface{}{uuid.New().String(), "Bob"},
 		),
 		spanner.Insert(
 			c.cfg.Table,
 			[]string{"id", "first_name"},
-			[]interface{}{uuid.New(), "John"},
+			[]interface{}{uuid.New().String(), "John"},
 		),
 	}
 	_, err := c.client.Apply(c.ctx, m)
@@ -138,10 +138,7 @@ func (c *Client) GetNames() ([]Name, error) {
 
 func (c *Client) CreateTable() error {
 	createStatement := fmt.Sprintf(
-		`CREATE TABLE %s (
-                    id UUID,
-                    first_name STRING(100)
-                 ) PRIMARY KEY (id)`,
+		`CREATE TABLE %s ( id STRING(36), first_name STRING(36)) PRIMARY KEY (id)`,
 		c.cfg.Table,
 	)
 	op, err := c.admin.UpdateDatabaseDdl(c.ctx, &adminpb.UpdateDatabaseDdlRequest{
