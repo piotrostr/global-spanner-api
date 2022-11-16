@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -16,23 +18,42 @@ var client *Client
 var router *gin.Engine
 
 func TestMain(m *testing.M) {
-	srv, err := spannertest.NewServer("localhost:0")
-	if err != nil {
-		log.Fatal(err)
+	prod := flag.Bool("prod", false, "Run tests against production database")
+	createTable := flag.Bool("create-table", false, "Create table in production database")
+	flag.Parse()
+
+	if *prod {
+		log.Println("Running tests against production database")
 	}
-	defer srv.Close()
 
-	os.Setenv("SPANNER_EMULATOR_HOST", srv.Addr)
+	if !*prod {
+		srv, err := spannertest.NewServer("localhost:0")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer srv.Close()
 
+		// if the environment variable SPANNER_EMULATOR_HOST is set, the
+		// client will connect to the emulator instead of the real Cloud
+		// Spanner service.
+		os.Setenv("SPANNER_EMULATOR_HOST", srv.Addr)
+	}
+
+	var err error
 	client, err = SetupClient()
 	if err != nil {
 		log.Fatalf("Error setting up client: %v", err)
 	}
 	router = SetupRouter(client)
 
-	err = client.CreateTable()
-	if err != nil {
-		log.Fatalf("Error creating table: %v", err)
+	log.Println("Spanner URL:", client.spannerURL)
+
+	// create table if flagged or not if in test environment
+	if *createTable || !*prod {
+		err = client.CreateTable()
+		if err != nil {
+			log.Fatalf("Error creating table: %v", err)
+		}
 	}
 
 	code := m.Run()
@@ -81,5 +102,9 @@ func TestGetNamesWorks(t *testing.T) {
 			w.Body.String(),
 		)
 	}
-	log.Println(w.Body.String())
+
+	var names []Name
+	if err := json.Unmarshal(w.Body.Bytes(), &names); err != nil {
+		t.Errorf("Error unmarshaling names: %v", err)
+	}
 }
